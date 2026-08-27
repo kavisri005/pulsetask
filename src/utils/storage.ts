@@ -47,15 +47,18 @@ export function loadTasksFromStorage(): Task[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw === null) {
-      // First-time visit: seed with initial sample data
-      saveTasksToStorage(INITIAL_SAMPLE_TASKS);
-      return INITIAL_SAMPLE_TASKS;
+      // In production, initialize with an empty task list on first visit.
+      // In development/testing, seed with initial sample data.
+      const initialTasks = import.meta.env.PROD ? [] : INITIAL_SAMPLE_TASKS;
+      saveTasksToStorage(initialTasks);
+      return initialTasks;
     }
 
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) {
-      console.warn('LocalStorage data is not an array, falling back to sample tasks.');
-      return INITIAL_SAMPLE_TASKS;
+      console.warn('LocalStorage data is not an array, falling back to clean task list.');
+      const fallbackTasks = import.meta.env.PROD ? [] : INITIAL_SAMPLE_TASKS;
+      return fallbackTasks;
     }
 
     // Filter and recover valid tasks
@@ -64,13 +67,14 @@ export function loadTasksFromStorage(): Task[] {
     // If array was populated but every element was invalid, return fallback
     if (parsed.length > 0 && recoveredTasks.length === 0) {
       console.warn('All tasks in LocalStorage were malformed. Recovering fallback tasks.');
-      return INITIAL_SAMPLE_TASKS;
+      const fallbackTasks = import.meta.env.PROD ? [] : INITIAL_SAMPLE_TASKS;
+      return fallbackTasks;
     }
 
     return recoveredTasks;
   } catch (error) {
     console.error('Failed to load tasks from LocalStorage due to corruption:', error);
-    return INITIAL_SAMPLE_TASKS;
+    return import.meta.env.PROD ? [] : INITIAL_SAMPLE_TASKS;
   }
 }
 
