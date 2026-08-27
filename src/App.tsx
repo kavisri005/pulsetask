@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTodos } from './hooks/useTodos';
 import { useToast, ToastProvider } from './hooks/useToast';
+import { ThemeProvider } from './hooks/useTheme';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { Footer } from './components/layout/Footer';
@@ -226,8 +227,10 @@ const TodoAppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <TodoAppContent />
-    </ToastProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <TodoAppContent />
+      </ToastProvider>
+    </ThemeProvider>
   );
 }
